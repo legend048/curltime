@@ -1,0 +1,44 @@
+{
+  "name": "curltime",
+  "version": "1.0.0",
+  "description": "See DNS, TCP, TLS, server, and download timings for any HTTP request.",
+  "type": "module",
+  "bin": {
+    "curltime": "bin/curltime.js"
+  },
+  "exports": "./src/index.js",
+  "files": [
+    "bin/",
+    "src/"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "prepublishOnly": "npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "curl",
+    "http",
+    "timing",
+    "latency",
+    "dns",
+    "ttfb",
+    "cli"
+  ],
+  "author": "legend048",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/legend048/curltime.git"
+  },
+  "homepage": "https://github.com/legend048/curltime#readme",
+  "bugs": {
+    "url": "https://github.com/legend048/curltime/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

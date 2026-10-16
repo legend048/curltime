@@ -1,0 +1,35 @@
+name: Package release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  package:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Verify tag matches package version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: node --input-type=module -e "import p from './package.json' with {type:'json'}; if (process.env.RELEASE_TAG !== 'v' + p.version) process.exit(1)"
+      - run: npm pack
+      - name: Create draft release with installable package
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: gh release create "$RELEASE_TAG" curltime-*.tgz --verify-tag --draft --generate-notes --title "$RELEASE_TAG"
