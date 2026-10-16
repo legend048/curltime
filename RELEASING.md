@@ -76,6 +76,10 @@ GitHub release downloads work independently of npm publishing. See
 5. Publishing that release starts `Publish to npm`, once trusted publishing is
    configured. Verify the published version using `npm view curltime version`.
 
+If automatic publishing is not configured, run `npm publish --access public`
+from the version commit and complete npm's browser authentication. This manual
+path works for every update without configuring a GitHub trusted publisher.
+
 Users update with `npm install --global curltime@latest`. Offline users install
 the new `.tgz`. To share a local package manually, run:
 

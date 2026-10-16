@@ -36,21 +36,23 @@ and macOS versions include curl; on Ubuntu/Debian, use `sudo apt install curl`.
 Check with `node --version` and `curl --version` (`curl.exe --version` in Windows
 PowerShell, where `curl` may be an alias).
 
-Install the first release directly from GitHub:
-
-```sh
-npm install --global https://github.com/legend048/curltime/releases/download/v1.0.0/curltime-1.0.0.tgz
-curltime https://example.com
-```
-
-Once the package is published on [npm](https://www.npmjs.com/package/curltime),
-install it or run it without a permanent global installation:
+Install from [npm](https://www.npmjs.com/package/curltime):
 
 ```sh
 npm install --global curltime
 curltime https://example.com
+```
 
+Or run it without a permanent global installation:
+
+```sh
 npx curltime https://example.com
+```
+
+You can also install the first release directly from GitHub:
+
+```sh
+npm install --global https://github.com/legend048/curltime/releases/download/v1.0.0/curltime-1.0.0.tgz
 ```
 
 You can also send someone the `curltime-1.0.0.tgz` release file. They can install
