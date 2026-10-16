@@ -41,17 +41,21 @@ exchanges GitHub's identity for short-lived credentials. It does not require an
 3. Set owner to `legend048`, repository to `curltime`, and workflow filename to
    `publish.yml`. Leave the environment name empty; this workflow does not use one.
 4. Save the publisher settings. Keep npm account two-factor authentication enabled.
+5. In GitHub, open **Settings > Secrets and variables > Actions > Variables**.
+   Add a repository variable named `NPM_TRUSTED_PUBLISHING` with the value `true`.
+   Automatic npm publishing is skipped until this variable is set.
 
 To publish the already-created first tag after setup, run **Actions > Publish
 to npm > Run workflow**, choose `main`, and enter `v1.0.0`. Skip this if 1.0.0
 was already published manually: npm versions cannot be overwritten.
 
-Later, publishing a GitHub release triggers the workflow automatically. The
+After setup, publishing a GitHub release triggers npm publishing automatically. The
 release pipeline tests all three operating systems. The publishing workflow
 checks that the tag matches `package.json`, runs the tests on Linux, and
-publishes with npm provenance. If trusted publishing has
-not been configured, npm publishing will fail; GitHub release downloads remain
-usable. See [npm's trusted publishing documentation](https://docs.npmjs.com/trusted-publishers/).
+publishes with npm provenance. A manual workflow run attempts publication even
+without the repository variable, so configure the npm trusted publisher first.
+GitHub release downloads work independently of npm publishing. See
+[npm's trusted publishing documentation](https://docs.npmjs.com/trusted-publishers/).
 
 ## Release an update
 

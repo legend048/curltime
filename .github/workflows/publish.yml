@@ -15,6 +15,7 @@ permissions:
 
 jobs:
   publish:
+    if: github.event_name == 'workflow_dispatch' || vars.NPM_TRUSTED_PUBLISHING == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
