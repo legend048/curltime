@@ -50,7 +50,7 @@ test('parses options before and after URL with repeated headers', () => {
 });
 
 test('invalid invocations fail before making a request', () => {
-  for (const args of [[], ['a.com', 'b.com'], ['--unknown', 'a.com'], ['--timeout'],
+  for (const args of [[], ['--unknown', 'a.com'], ['--timeout'],
     ['--timeout', '0', 'a.com'], ['--timeout=NaN', 'a.com'], ['--timeout=Infinity', 'a.com'],
     ['--timeout=-1', 'a.com'], ['--json=true', 'a.com'], ['-H', '@secrets', 'a.com'],
     ['-H', 'X-Test: a\r\nInjected: b', 'a.com'], ['-I', '-X', 'POST', 'a.com']]) {

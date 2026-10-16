@@ -1,16 +1,28 @@
-import { CurlTimeError, normalizeUrl, validateOptions } from './index.js';
+import { CurlTimeError, normalizeUrl, validateOptions } from './request.js';
+import { validateBenchmarkOptions } from './benchmark.js';
 
-export const help = `Usage: curltime [options] <url>
+export const help = `Usage: curltime [options] <url> [url ...]
 
 Show DNS, TCP, TLS, server response, TTFB, download, and total request timings.
 Bare hostnames use HTTPS. Requires Node.js 22+ and curl 7.70+ on PATH.
 
 Options:
   --json                      Print a machine-readable JSON report
+  --csv                       Print one CSV row per measured request
+  -o, --output <file>          Write the report to a UTF-8 file
+  -n, --repeat <count>         Benchmark 1-1000 requests per URL
+  --warmup <count>            Run 0-1000 excluded warmup requests per URL
+  --interval <seconds>        Pause between rounds (default: 0)
+  --expect-status <codes>     Require status codes/classes, e.g. 200,204 or 2xx
+  --max-total <ms>            Fail a check if any total time exceeds this
+  --max-ttfb <ms>             Fail a check if any TTFB exceeds this
   -L, --location              Follow redirects (at most 10)
   -I, --head                  Send a HEAD request instead of GET
   -H, --header <header>       Add a request header; can be repeated
-  -X, --request <method>      Set the HTTP method (no request body)
+  -X, --request <method>      Set the HTTP method
+  -d, --data <text>           Send a literal body; defaults to POST
+  --data-file <file>          Send a file's exact bytes; defaults to POST
+  --json-body <json>          Send JSON with JSON headers; defaults to POST
   -m, --timeout <seconds>     Limit the whole request (default: 30)
   --connect-timeout <seconds> Limit connection setup (default: 10)
   --fail                     Exit with curl code 22 for HTTP 400+ responses
@@ -19,13 +31,18 @@ Options:
 
 Examples:
   curltime https://example.com
-  curltime -L --json https://example.com
-  curltime -H "Accept: application/json" https://api.example.com
+  curltime -n 10 --warmup 2 https://example.com
+  curltime -n 5 https://example.com https://www.example.com
+  curltime --expect-status 2xx --max-total 500 https://example.com
+  curltime -n 10 --csv -o timings.csv https://example.com
+
+Multiple URLs are compared in sequential rounds. Ctrl+C stops an active run.
+Checks failing on completed requests exit with 3; curl errors keep their code.
 
 Update: npm install --global curltime@latest`;
 
 const booleanFlags = new Map([
-  ['--json', 'json'], ['-L', 'follow'], ['--location', 'follow'],
+  ['--json', 'json'], ['--csv', 'csv'], ['-L', 'follow'], ['--location', 'follow'],
   ['-I', 'head'], ['--head', 'head'], ['--fail', 'fail'],
   ['-h', 'help'], ['--help', 'help'], ['-v', 'version'], ['--version', 'version'],
 ]);
@@ -33,6 +50,10 @@ const booleanFlags = new Map([
 const valueFlags = new Map([
   ['-H', 'header'], ['--header', 'header'], ['-X', 'method'], ['--request', 'method'],
   ['-m', 'timeout'], ['--timeout', 'timeout'], ['--connect-timeout', 'connectTimeout'],
+  ['-n', 'repeat'], ['--repeat', 'repeat'], ['--warmup', 'warmup'], ['--interval', 'interval'],
+  ['--expect-status', 'expectStatus'], ['--max-total', 'maxTotal'], ['--max-ttfb', 'maxTtfb'],
+  ['-d', 'data'], ['--data', 'data'], ['--data-file', 'dataFile'], ['--json-body', 'jsonBody'],
+  ['-o', 'output'], ['--output', 'output'],
 ]);
 
 export function parseArgs(argv) {
@@ -57,10 +78,11 @@ export function parseArgs(argv) {
       options[booleanFlags.get(flag)] = true;
     } else if (valueFlags.has(flag)) {
       const value = equalIndex < 0 ? argv[++i] : argument.slice(equalIndex + 1);
-      if (value === undefined || value === '' || value.startsWith('-')) {
+      const key = valueFlags.get(flag);
+      if (value === undefined || (value === '' && key !== 'data') ||
+          (equalIndex < 0 && value.startsWith('-') && key !== 'data' && key !== 'jsonBody')) {
         throw new CurlTimeError(`${flag} requires a value.`, 2);
       }
-      const key = valueFlags.get(flag);
       if (key === 'header') options.headers.push(value);
       else options[key] = value;
     } else if (argument.startsWith('-')) {
@@ -71,9 +93,12 @@ export function parseArgs(argv) {
   }
 
   if (options.help || options.version) return options;
-  if (positional.length !== 1) {
-    throw new CurlTimeError('Provide exactly one URL. Run curltime --help for examples.', 2);
+  if (!positional.length || positional.length > 50) {
+    throw new CurlTimeError('Provide between 1 and 50 URLs. Run curltime --help for examples.', 2);
   }
+  if (options.json && options.csv) throw new CurlTimeError('Choose either --json or --csv.', 2);
+  options.benchmark = positional.length > 1 || options.repeat !== undefined || options.warmup !== undefined || options.interval !== undefined;
+  options.urls = positional.map(normalizeUrl);
   options.url = normalizeUrl(positional[0]);
-  return { ...options, ...validateOptions(options) };
+  return validateBenchmarkOptions(validateOptions(options));
 }

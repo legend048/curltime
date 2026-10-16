@@ -15,7 +15,9 @@ lockfile. To try the command globally from your checkout, run `npm link`.
 Unlink it with `npm uninstall --global curltime` when finished.
 
 The CLI is in `bin/curltime.js`, argument parsing in `src/args.js`, and curl
-execution and timing conversion in `src/index.js`. Tests use Node's built-in
+execution, request bodies, and checks in `src/request.js`. `src/benchmark.js`
+handles rounds and statistics, `src/output.js` formats exports, and `src/index.js`
+exports the public API. Tests use Node's built-in
 test runner and a local HTTP server, so they do not need an internet connection.
 The real curl executable must be available.
 

@@ -53,6 +53,7 @@ test('real curl returns a structured timing report and discards the body', async
   assert.equal(result.code, 0, result.stderr);
   assert.equal(result.stderr, '');
   const report = JSON.parse(result.stdout);
+  assert.deepEqual(Object.keys(report), ['url', 'effectiveUrl', 'unit', 'timings', 'httpStatus', 'remoteIp', 'httpVersion', 'redirects']);
   assert.equal(report.httpStatus, 200);
   assert.equal(report.unit, 'ms');
   assert.equal(report.remoteIp, '127.0.0.1');
