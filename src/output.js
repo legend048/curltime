@@ -1,12 +1,13 @@
 import { terminalText } from './request.js';
 
 export function resultExitCode(result) {
+  if (result.mode === 'watch') return result.exitCode;
   if (result.mode !== 'benchmark') return result.checks?.passed === false ? 3 : 0;
   for (const target of result.results) {
     const error = target.samples.find(sample => sample.error)?.error;
     if (error) return error.exitCode;
   }
-  return result.checks.passed ? 0 : 3;
+  return result.checks.passed && result.comparison?.passed !== false ? 0 : 3;
 }
 
 export function formatBenchmark(result) {
@@ -62,4 +63,14 @@ export function formatCsv(result) {
     return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
   };
   return [columns, ...rows].map(row => row.map(cell).join(',')).join('\n');
+}
+
+export function formatWatchCsv(event, includeHeader = false) {
+  const sample = { iteration: event.round, report: event.report, error: event.error };
+  const csv = formatCsv({ mode: 'benchmark', results: [{ url: event.url, samples: [sample] }] });
+  const firstNewline = csv.indexOf('\n');
+  // Timestamp/state precede the existing sample columns; errors may contain newlines.
+  const header = `timestamp,state,transition,${csv.slice(0, firstNewline)}`;
+  const row = `${event.timestamp},${event.state},${event.transition ?? ''},${csv.slice(firstNewline + 1)}`;
+  return includeHeader ? `${header}\n${row}` : row;
 }

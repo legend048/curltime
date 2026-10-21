@@ -1,7 +1,7 @@
 {
   "name": "curltime",
-  "version": "1.1.0",
-  "description": "Benchmark HTTP requests, compare endpoints, and check DNS, TCP, TLS, and TTFB latency from your terminal.",
+  "version": "1.2.0",
+  "description": "HTTP timing, endpoint monitoring, and deployment performance checks. Benchmark curl latency and catch regressions against saved baselines.",
   "type": "module",
   "bin": {
     "curltime": "bin/curltime.js"
@@ -9,7 +9,8 @@
   "exports": "./src/index.js",
   "files": [
     "bin/",
-    "src/"
+    "src/",
+    "schema/"
   ],
   "scripts": {
     "test": "node --test",
@@ -28,6 +29,9 @@
     "benchmark",
     "performance",
     "api-testing",
+    "monitoring",
+    "health-check",
+    "regression",
     "cli"
   ],
   "author": "legend048",

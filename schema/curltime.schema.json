@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/legend048/curltime/main/schema/curltime.schema.json",
+  "title": "curltime configuration",
+  "description": "Run with curltime --config <file>. CLI options override matching config options.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "urls"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "const": 1 },
+    "urls": {
+      "type": "array", "minItems": 1, "maxItems": 50,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "HTTP(S) URLs. Bare hosts use HTTPS. ${ENV_NAME} placeholders are supported."
+    },
+    "options": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "repeat": { "type": "integer", "minimum": 1, "maximum": 1000 },
+        "warmup": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "interval": { "type": "number", "minimum": 0, "maximum": 3600 },
+        "watch": { "type": "boolean", "description": "Monitor until interrupted, or for repeat rounds. Requires interval >= 0.1; no warmups or baselines." },
+        "expectStatus": { "type": ["string", "integer"], "description": "HTTP codes or classes, e.g. 200,204 or 2xx." },
+        "maxTotal": { "type": "number", "exclusiveMinimum": 0, "description": "Per-request total latency limit in milliseconds." },
+        "maxTtfb": { "type": "number", "exclusiveMinimum": 0, "description": "Per-request TTFB limit in milliseconds." },
+        "timeout": { "type": "number", "exclusiveMinimum": 0 },
+        "connectTimeout": { "type": "number", "exclusiveMinimum": 0 },
+        "headers": { "type": "array", "items": { "type": "string", "minLength": 1 }, "description": "Literal headers; supports ${ENV_NAME}. CLI -H replaces this entire list." },
+        "method": { "type": "string", "minLength": 1 },
+        "follow": { "type": "boolean" },
+        "head": { "type": "boolean" },
+        "fail": { "type": "boolean" },
+        "data": { "type": "string" },
+        "dataFile": { "type": "string", "minLength": 1 },
+        "jsonBody": { "type": "string", "description": "JSON text, not a config object." },
+        "json": { "type": "boolean" },
+        "csv": { "type": "boolean" },
+        "output": { "type": "string", "minLength": 1 },
+        "baseline": { "type": "string", "minLength": 1 },
+        "saveBaseline": { "type": "string", "minLength": 1 },
+        "maxRegression": { "type": "number", "minimum": 0, "description": "Allowed total P95 increase in percent. Requires baseline; defaults to 20." }
+      }
+    }
+  }
+}

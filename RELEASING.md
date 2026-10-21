@@ -89,5 +89,5 @@ npm pack --pack-destination dist
 ```
 
 Create the `dist` directory first if it does not exist. The npm `files` allowlist
-includes only runtime code, package metadata, README, and license. Tests,
+includes only runtime code, the config schema, package metadata, README, and license. Tests,
 workflows, local npm configuration, and environment files are excluded.
